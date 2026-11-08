@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SlipDesk — Marina Slip Renewal Desk (Demo)</title>
+<style>
+  :root{
+    --navy:#10344a; --navy2:#174a66; --ink:#1c2733; --mut:#54687a; --line:#d7e0e8;
+    --bg:#edf2f5; --card:#ffffff; --accent:#0f7a4d; --accent2:#0b5cad;
+    --red:#b03024; --redbg:#fdecea; --amber:#8f5d00; --amberbg:#fdf3e0;
+    --green:#0f7a4d; --greenbg:#e7f5ee; --greybg:#eef1f4;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); font-size:14px;}
+  header{background:var(--navy); color:#fff; padding:14px 28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  header .logo{font-size:20px; font-weight:700; letter-spacing:.3px;}
+  header .logo span{color:#8fd8f2;}
+  header .sub{color:#bcd2df; font-size:12.5px;}
+  header .demo-badge{margin-left:auto; background:#f5b301; color:#231a00; font-weight:700; font-size:12px; padding:5px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:.6px;}
+  .companybar{background:var(--navy2); color:#d8e7f0; padding:8px 28px; font-size:13px; display:flex; gap:24px; flex-wrap:wrap;}
+  .companybar b{color:#fff;}
+  nav{display:flex; gap:4px; background:#fff; border-bottom:1px solid var(--line); padding:0 20px; position:sticky; top:0; z-index:5; flex-wrap:wrap;}
+  nav button{background:none; border:none; border-bottom:3px solid transparent; padding:13px 14px; font-size:14px; font-weight:600; color:var(--mut); cursor:pointer; min-height:48px;}
+  nav button:hover{color:var(--ink);}
+  nav button.active{color:var(--navy); border-bottom-color:var(--accent);}
+  main{max-width:1180px; margin:0 auto; padding:24px 20px 40px;}
+  section.panel{display:none;}
+  section.panel.active{display:block;}
+  h2{font-size:18px; margin-bottom:4px; color:var(--navy);}
+  h3{font-size:15px; color:var(--navy);}
+  .pdesc{color:var(--mut); margin-bottom:18px; font-size:13px;}
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:16px; margin-bottom:22px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;}
+  .card .lbl{font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); font-weight:700;}
+  .card .big{font-size:28px; font-weight:800; margin:6px 0 2px; color:var(--navy);}
+  .card .note{font-size:12.5px; color:var(--mut);}
+  .card.risk .big{color:var(--red);}
+  .card.warn .big{color:var(--amber);}
+  .card.good .big{color:var(--green);}
+  .riskbanner{background:var(--redbg); border:1px solid #f0c6c0; color:#71231b; border-radius:10px; padding:14px 18px; margin-bottom:22px; font-size:13.5px;}
+  .riskbanner b{color:var(--red);}
+  .statstrip{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin-bottom:22px;}
+  .statstrip h3{margin-bottom:8px;}
+  .statstrip li{margin-left:18px; margin-bottom:4px; font-size:13.5px;}
+  .tblwrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--card); margin-bottom:22px;}
+  table{width:100%; border-collapse:collapse; min-width:640px;}
+  th{background:var(--greybg); text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--mut); padding:10px 12px; white-space:nowrap;}
+  td{padding:10px 12px; border-top:1px solid var(--line); vertical-align:top; font-size:13.5px;}
+  tr.clickable{cursor:pointer;}
+  tr.clickable:hover td{background:#f4f9fc;}
+  .pill{display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:700; white-space:nowrap;}
+  .pill.renewed{background:var(--greenbg); color:var(--green);}
+  .pill.docs{background:var(--amberbg); color:var(--amber);}
+  .pill.invited{background:#e3eefb; color:var(--accent2);}
+  .pill.notstarted{background:var(--greybg); color:#45596a;}
+  .pill.declined,.pill.released,.pill.expired{background:var(--redbg); color:var(--red);}
+  .pill.offered{background:#f3e8fd; color:#5e35a8;}
+  .pill.waiting{background:var(--greybg); color:#45596a;}
+  .pill.accepted{background:var(--greenbg); color:var(--green);}
+  .btn{background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:13.5px; font-weight:700; cursor:pointer; min-height:44px;}
+  .btn:hover{background:#0b6340;}
+  .btn:disabled{background:#b9c9d6; cursor:not-allowed;}
+  .btn.secondary{background:#fff; color:var(--navy); border:1px solid var(--line);}
+  .btn.secondary:hover{background:var(--greybg);}
+  .btn.small{padding:6px 10px; min-height:36px; font-size:12.5px; margin:2px 2px 2px 0;}
+  .btn.blue{background:var(--accent2);}
+  .btn.blue:hover{background:#094f86;}
+  .btn.danger{background:#fff; color:var(--red); border:1px solid #f0c6c0;}
+  .btn.danger:hover{background:var(--redbg);}
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .toolbar .spacer{flex:1;}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .chip{border:1px solid var(--line); background:#fff; border-radius:16px; padding:8px 14px; font-size:13px; font-weight:600; color:var(--mut); cursor:pointer; min-height:40px;}
+  .chip.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+  input[type=text], input[type=number], input[type=email], input[type=date], select, textarea{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; font-family:inherit; background:#fff;}
+  textarea{resize:vertical;}
+  label.flabel{display:block; font-size:12.5px; font-weight:700; color:var(--mut); margin:0 0 6px;}
+  .field{margin-bottom:14px;}
+  .fieldrow{display:flex; gap:8px; align-items:flex-start;}
+  .fieldrow .grow{flex:1;}
+  .micbtn{flex:0 0 auto; width:48px; height:48px; border-radius:8px; border:1px solid var(--line); background:#fff; font-size:20px; cursor:pointer;}
+  .micbtn:hover{background:var(--greybg);}
+  .formcard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; max-width:860px; margin-bottom:22px;}
+  .formcard h3{margin-bottom:12px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .err{background:var(--redbg); color:#71231b; border:1px solid #f0c6c0; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:none; font-size:13.5px;}
+  .okmsg{background:var(--greenbg); color:#0b5340; border:1px solid #bfe3cf; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:none; font-size:13.5px;}
+  .verify{background:var(--amberbg); border:1px solid #ecd9a8; color:#5f4300; border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:13px;}
+  .checklist{list-style:none; margin:6px 0 14px;}
+  .checklist li{padding:6px 0; border-bottom:1px dashed var(--line); font-size:13.5px;}
+  .checklist .pass{color:var(--green); font-weight:700;}
+  .checklist .fail{color:var(--red); font-weight:700;}
+  .docbox{background:#fff; border:1px solid var(--line); border-radius:10px; padding:22px; max-width:820px; margin-bottom:22px; white-space:pre-wrap; font-size:13.5px; line-height:1.55;}
+  .docbox .draftline{color:var(--red); font-weight:800; letter-spacing:.4px;}
+  .phoneframe{max-width:400px; margin:0 auto 22px; border:2px solid var(--navy); border-radius:22px; padding:18px; background:#fbfdff;}
+  .phoneframe h3{text-align:center; margin-bottom:4px;}
+  .phoneframe .who{text-align:center; color:var(--mut); font-size:12.5px; margin-bottom:14px;}
+  #toast{position:fixed; left:50%; transform:translateX(-50%); bottom:26px; background:var(--navy); color:#fff; padding:12px 20px; border-radius:10px; font-size:14px; display:none; z-index:50; max-width:92vw; text-align:center;}
+  #gate{max-width:640px; margin:34px auto; background:#fff; border:1px solid var(--line); border-radius:12px; padding:26px;}
+  #gate h2{margin-bottom:10px;}
+  #gate p{margin-bottom:12px; font-size:14px; line-height:1.55;}
+  .gatecheck{display:flex; gap:10px; align-items:flex-start; background:var(--greybg); border-radius:8px; padding:12px; margin:16px 0;}
+  .gatecheck input{width:22px; height:22px; flex:0 0 auto; margin-top:1px;}
+  details{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:12px;}
+  details summary{font-weight:700; color:var(--navy); cursor:pointer; font-size:14px;}
+  details p{margin-top:8px; font-size:13.5px; line-height:1.55; color:var(--ink);}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px;}
+  #printArea{display:none;}
+  @media (max-width:640px){
+    header, .companybar{padding-left:16px; padding-right:16px;}
+    main{padding:18px 12px 34px;}
+    .grid2{grid-template-columns:1fr;}
+    nav{padding:0 8px;}
+    nav button{padding:12px 9px; font-size:13px;}
+  }
+  @media print{
+    header, .companybar, nav, main, #toast{display:none !important;}
+    #printArea{display:block; font-size:12px;}
+    #printArea .docbox{border:none; max-width:none;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">Slip<span>Desk</span></div>
+    <div class="sub">The annual slip-renewal desk for small marinas &amp; boatyards</div>
+  </div>
+  <div class="demo-badge">Demo — fictional data</div>
+</header>
+<div class="companybar">
+  <div>Marina: <b id="barMarina">Grand Lake Marina &amp; Boatyard</b></div>
+  <div>Season: <b id="barSeason">2027 (Apr 1 – Oct 31)</b></div>
+  <div>Contracts due back: <b id="barDue">Feb 15, 2027</b></div>
+</div>
+
+<div id="gate" hidden>
+  <h2>Before you start — what SlipDesk is</h2>
+  <p><b>SlipDesk prepares renewal paperwork. It does not sign, file, or submit anything.</b> SlipDesk assembles each slip's renewal contract from the marina's own records, tracks insurance certificates and boat registrations, chases the boaters who haven't answered, works the waitlist, and produces the invoice list for your bookkeeping.</p>
+  <p>The marina reviews and sends every contract. Each boater reviews and signs their own renewal — SlipDesk never signs for a boater, and a signature recorded in this demo is a simulation of the boater's own action on their no-login link.</p>
+  <p>Insurance and registration requirements shown in SlipDesk are <b>your marina's own policy settings</b>, entered by you — not legal advice and not a statement of any law. Check requirements with your insurer and your state boating authority.</p>
+  <label class="gatecheck"><input type="checkbox" id="termsCheck">
+    <span>I understand: SlipDesk prepares the renewal packet; the marina and each boater review and sign for themselves.</span></label>
+  <button class="btn" id="termsAgree" disabled>Agree &amp; open SlipDesk</button>
+</div>
+
+<div id="appShell" hidden>
+<nav id="mainNav">
+  <button data-view="dashboard" class="active">Season</button>
+  <button data-view="slips">Slips</button>
+  <button data-view="chase">Chase queue</button>
+  <button data-view="waitlist">Waitlist</button>
+  <button data-view="addslip">Add / edit slip</button>
+  <button data-view="export">Export</button>
+  <button data-view="settings">Settings</button>
+  <button data-view="pricing">Pricing &amp; pilot</button>
+  <button data-view="help">Help</button>
+</nav>
+<main>
+
+  <!-- DASHBOARD -->
+  <section class="panel active" id="view-dashboard">
+    <h2>Season dashboard</h2>
+    <p class="pdesc">The whole renewal season on one screen — who has renewed, whose insurance certificate is still outstanding, what money is in, and who needs a nudge today. Every number is computed from the slip records below it; nothing is typed twice.</p>
+    <div id="recoverBanner"></div>
+    <div class="cards">
+      <div class="card good"><div class="lbl">Renewed</div><div class="big" id="dRenewed">–</div><div class="note" id="dRenewedNote">of slips with a current holder</div></div>
+      <div class="card warn"><div class="lbl">Insurance certs outstanding</div><div class="big" id="dCerts">–</div><div class="note">missing, expired before season start, or below your required minimum</div></div>
+      <div class="card"><div class="lbl">Deposits collected</div><div class="big" id="dDeposits">–</div><div class="note" id="dDepositsNote">deposits in hand</div></div>
+      <div class="card"><div class="lbl">Waitlist offers pending</div><div class="big" id="dOffers">–</div><div class="note">offers out, waiting on an answer</div></div>
+    </div>
+    <div class="statstrip">
+      <h3>Season money</h3>
+      <ul>
+        <li>Contracted so far (renewed slips, season fee + deposit): <b id="dContracted">–</b></li>
+        <li>If every current holder renews: <b id="dExpected">–</b></li>
+        <li>Balance still outstanding from current holders: <b id="dBalance">–</b></li>
+      </ul>
+    </div>
+    <div class="statstrip">
+      <h3>Needs attention first</h3>
+      <ul id="dAttention"></ul>
+      <div class="toolbar" style="margin-top:12px;">
+        <button class="btn" id="dashChaseBtn">Open the chase queue</button>
+        <button class="btn secondary" id="dashSlipsBtn">See all slips</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIPS -->
+  <section class="panel" id="view-slips">
+    <h2>Slips</h2>
+    <p class="pdesc">Every slip, its holder, its renewal state, and its documents. Tap a row for the full file — contract, certificate checklist, chase history, and the boater's own renewal link preview.</p>
+    <div class="chips" id="slipFilters">
+      <button class="chip active" data-filter="all">All slips</button>
+      <button class="chip" data-filter="renewed">Renewed</button>
+      <button class="chip" data-filter="docs">Docs pending</button>
+      <button class="chip" data-filter="invited">Invited</button>
+      <button class="chip" data-filter="not-started">Not started</button>
+      <button class="chip" data-filter="gone">Declined / released</button>
+    </div>
+    <div class="field" style="max-width:420px;">
+      <label class="flabel" for="slipSearch">Search by slip, holder, or boat</label>
+      <div class="fieldrow"><div class="grow"><input type="text" id="slipSearch" placeholder="e.g. B-07, Alvarez, Second Wind"></div>
+      <button class="micbtn" data-mic="slipSearch" aria-label="Speak the search">🎤</button></div>
+    </div>
+    <div class="tblwrap"><table id="slipTable">
+      <thead><tr><th>Slip</th><th>Holder</th><th>Boat</th><th>Status</th><th>Insurance</th><th>Registration</th><th>Balance</th></tr></thead>
+      <tbody id="slipRows"></tbody>
+    </table></div>
+    <div id="slipDetail"></div>
+  </section>
+
+  <!-- CHASE -->
+  <section class="panel" id="view-chase">
+    <h2>Chase queue</h2>
+    <p class="pdesc">Whoever has been waiting longest is on top. SlipDesk suggests the next step on your reminder ladder, drafts the message from the slip's real facts, and logs every contact against the slip — the clock restarts from the last touch, so nobody gets chased twice in a week by accident.</p>
+    <div class="tblwrap"><table id="chaseTable">
+      <thead><tr><th>Slip</th><th>Holder</th><th>Waiting on</th><th>Days waiting</th><th>Next step</th><th></th></tr></thead>
+      <tbody id="chaseRows"></tbody>
+    </table></div>
+    <div id="chaseDetail"></div>
+  </section>
+
+  <!-- WAITLIST -->
+  <section class="panel" id="view-waitlist">
+    <h2>Waitlist</h2>
+    <p class="pdesc">When a holder declines or a slip is released, offer it here — first matching boater first (their boat has to fit the slip). An offer holds the slip for your offer window, then expires on its own.</p>
+    <div class="tblwrap"><table id="waitTable">
+      <thead><tr><th>#</th><th>Boater</th><th>Boat</th><th>Needs</th><th>Status</th><th>Offered slip</th><th></th></tr></thead>
+      <tbody id="waitRows"></tbody>
+    </table></div>
+    <div class="formcard">
+      <h3>Add to the waitlist</h3>
+      <div class="err" id="wErr"></div>
+      <div class="grid2">
+        <div class="field"><label class="flabel" for="wName">Boater name</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="wName"></div><button class="micbtn" data-mic="wName" aria-label="Speak the boater name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="wEmail">Email</label>
+          <div class="fieldrow"><div class="grow"><input type="email" id="wEmail"></div><button class="micbtn" data-mic="wEmail" aria-label="Speak the email">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="wBoat">Boat name</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="wBoat"></div><button class="micbtn" data-mic="wBoat" aria-label="Speak the boat name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="wLen">Boat length (ft)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="wLen" min="1" max="120"></div><button class="micbtn" data-mic="wLen" aria-label="Speak the boat length">🎤</button></div></div>
+      </div>
+      <button class="btn" id="wAddBtn">Add to waitlist</button>
+    </div>
+  </section>
+
+  <!-- ADD / EDIT SLIP -->
+  <section class="panel" id="view-addslip">
+    <h2 id="slipFormTitle">Add a slip</h2>
+    <p class="pdesc">One record per slip — the dashboard, the contract, the chase queue, and the invoice list all read this same record. A draft of this form is kept on this device as you type, so a refresh never loses your place.</p>
+    <div class="formcard">
+      <div class="err" id="sErr"></div>
+      <div class="okmsg" id="sOk"></div>
+      <input type="hidden" id="sId">
+      <div class="grid2">
+        <div class="field"><label class="flabel" for="sCode">Slip code (e.g. B-07)</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="sCode"></div><button class="micbtn" data-mic="sCode" aria-label="Speak the slip code">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sDock">Dock</label>
+          <select id="sDock"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+        <div class="field"><label class="flabel" for="sMaxLen">Slip fits boats up to (ft)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="sMaxLen" min="1" max="200"></div><button class="micbtn" data-mic="sMaxLen" aria-label="Speak the slip length">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sRate">Monthly rate ($)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="sRate" min="0" step="1"></div><button class="micbtn" data-mic="sRate" aria-label="Speak the monthly rate">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sHolder">Holder name</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="sHolder"></div><button class="micbtn" data-mic="sHolder" aria-label="Speak the holder name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sEmail">Holder email</label>
+          <div class="fieldrow"><div class="grow"><input type="email" id="sEmail"></div><button class="micbtn" data-mic="sEmail" aria-label="Speak the holder email">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sBoat">Boat name</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="sBoat"></div><button class="micbtn" data-mic="sBoat" aria-label="Speak the boat name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sBoatLen">Boat length (ft)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="sBoatLen" min="0" max="200"></div><button class="micbtn" data-mic="sBoatLen" aria-label="Speak the boat length">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sStage">Renewal stage</label>
+          <select id="sStage">
+            <option value="not-started">Not started</option>
+            <option value="invited">Link sent — awaiting boater</option>
+            <option value="signed">Signed</option>
+            <option value="declined">Declined</option>
+            <option value="released">Released to waitlist</option>
+          </select></div>
+        <div class="field"><label class="flabel" for="sPaid">Amount paid so far ($)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="sPaid" min="0" step="1"></div><button class="micbtn" data-mic="sPaid" aria-label="Speak the amount paid">🎤</button></div></div>
+      </div>
+      <h3 style="margin:8px 0 10px;">Insurance certificate on file</h3>
+      <div class="grid2">
+        <div class="field"><label class="flabel" for="sInsCarrier">Carrier (blank = none on file)</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="sInsCarrier"></div><button class="micbtn" data-mic="sInsCarrier" aria-label="Speak the insurance carrier">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sInsPolicy">Policy number</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="sInsPolicy"></div><button class="micbtn" data-mic="sInsPolicy" aria-label="Speak the policy number">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sInsLimit">Liability limit ($)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="sInsLimit" min="0" step="1000"></div><button class="micbtn" data-mic="sInsLimit" aria-label="Speak the liability limit">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sInsExp">Certificate expires</label><input type="date" id="sInsExp"></div>
+      </div>
+      <h3 style="margin:8px 0 10px;">Boat registration on file</h3>
+      <div class="grid2">
+        <div class="field"><label class="flabel" for="sRegState">State (blank = none on file)</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="sRegState"></div><button class="micbtn" data-mic="sRegState" aria-label="Speak the registration state">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sRegNum">Registration number</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="sRegNum"></div><button class="micbtn" data-mic="sRegNum" aria-label="Speak the registration number">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="sRegExp">Registration expires</label><input type="date" id="sRegExp"></div>
+        <div class="field"><label class="flabel" for="sDeposit">Deposit</label>
+          <select id="sDeposit"><option value="0">Deposit not yet paid</option><option value="1">Deposit paid</option></select></div>
+      </div>
+      <div class="field"><label class="flabel" for="sNotes">Notes</label>
+        <div class="fieldrow"><div class="grow"><textarea id="sNotes" rows="2"></textarea></div><button class="micbtn" data-mic="sNotes" aria-label="Speak the notes">🎤</button></div></div>
+      <div class="toolbar">
+        <button class="btn" id="sSaveBtn">Save slip</button>
+        <button class="btn secondary" id="sNewBtn">Start a new slip</button>
+        <span class="spacer"></span>
+        <button class="btn danger" id="sDeleteBtn" hidden>Delete this slip</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPORT -->
+  <section class="panel" id="view-export">
+    <h2>Export</h2>
+    <p class="pdesc">The invoice list your bookkeeper imports instead of re-typing from a spreadsheet, plus a full backup of everything in SlipDesk. Exports are generated from the same records you see on screen — check them here before you download.</p>
+    <div class="formcard">
+      <h3>Invoice list (CSV, QuickBooks-ready)</h3>
+      <p style="font-size:13px; color:var(--mut); margin-bottom:10px;">One row per slip with a current holder: season fee, deposit, total due, paid, balance.</p>
+      <div class="field"><label class="flabel" for="csvOut">Invoice list</label><textarea id="csvOut" rows="10" readonly class="mono"></textarea></div>
+      <div class="toolbar">
+        <button class="btn" id="csvBuildBtn">Build invoice list</button>
+        <button class="btn secondary" id="csvDownloadBtn">Download CSV</button>
+      </div>
+    </div>
+    <div class="formcard">
+      <h3>Backup &amp; restore</h3>
+      <p style="font-size:13px; color:var(--mut); margin-bottom:10px;">Your data lives only in this browser, on this device. Download a backup before you clear browser data or change devices.</p>
+      <div class="toolbar">
+        <button class="btn secondary" id="backupBtn">Download backup (JSON)</button>
+        <label class="btn secondary" for="importFile" style="display:inline-flex; align-items:center;">Restore from backup…</label>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+      </div>
+      <div class="err" id="impErr"></div>
+      <div class="okmsg" id="impOk"></div>
+      <div class="toolbar">
+        <button class="btn danger" id="resetDataBtn">Reset demo data</button>
+        <button class="btn danger" id="clearDataBtn">Clear all slips &amp; waitlist</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="panel" id="view-settings">
+    <h2>Settings &amp; marina policies</h2>
+    <p class="pdesc">These are <b>your marina's own rules</b> — SlipDesk computes from them, it does not invent them. Change the required insurance minimum here and every certificate check in the app re-judges itself against the new number.</p>
+    <div class="verify"><b>VERIFY:</b> SlipDesk does not know your state's boating-registration law or your insurer's requirements, and it does not claim to. The required liability minimum and the document rules below are policy settings for <i>this marina</i>. Confirm them with your insurance agent and your state boating authority before you rely on them — a certificate that passes here only means it matches the settings on this screen.</div>
+    <div class="formcard">
+      <div class="err" id="setErr"></div>
+      <div class="okmsg" id="setOk"></div>
+      <div class="grid2">
+        <div class="field"><label class="flabel" for="setMarina">Marina name</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="setMarina"></div><button class="micbtn" data-mic="setMarina" aria-label="Speak the marina name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="setSeasonName">Season name</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="setSeasonName"></div><button class="micbtn" data-mic="setSeasonName" aria-label="Speak the season name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="setStart">Season starts</label><input type="date" id="setStart"></div>
+        <div class="field"><label class="flabel" for="setEnd">Season ends</label><input type="date" id="setEnd"></div>
+        <div class="field"><label class="flabel" for="setMonths">Season length (months, for fees)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="setMonths" min="1" max="12"></div><button class="micbtn" data-mic="setMonths" aria-label="Speak the season length">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="setDepositMonths">Deposit = how many months of rate?</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="setDepositMonths" min="0" max="6"></div><button class="micbtn" data-mic="setDepositMonths" aria-label="Speak the deposit months">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="setLiability">Required liability minimum ($)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="setLiability" min="0" step="1000"></div><button class="micbtn" data-mic="setLiability" aria-label="Speak the liability minimum">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="setOfferDays">Waitlist offer window (days)</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="setOfferDays" min="1" max="30"></div><button class="micbtn" data-mic="setOfferDays" aria-label="Speak the offer window">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="setDue">Contracts due back by</label><input type="date" id="setDue"></div>
+      </div>
+      <button class="btn" id="setSaveBtn">Save settings</button>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="panel" id="view-pricing">
+    <h2>Pricing &amp; pilot</h2>
+    <p class="pdesc">SlipDesk is sold as a working desk, not another platform to migrate to. You keep your slips, your bookkeeper, and your way of running the dock — SlipDesk runs the spring packet.</p>
+    <div class="cards">
+      <div class="card"><div class="lbl">SlipDesk</div><div class="big">$99<span style="font-size:15px;">/mo</span></div><div class="note">Full renewal desk for one marina. Seasonal pause allowed — pay for the months you run it, pause it over the winter.</div></div>
+      <div class="card good"><div class="lbl">Pilot — spring renewal run</div><div class="big">$299</div><div class="note">We run your whole renewal packet once: import your slip list, generate every contract, collect certificates and registrations through boater links, chase the non-responders, work the waitlist, and hand you the invoice list for QuickBooks.</div></div>
+    </div>
+    <div class="formcard">
+      <h3>Request the $299 spring renewal run</h3>
+      <div class="grid2">
+        <div class="field"><label class="flabel" for="pilotName">Your name</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="pilotName"></div><button class="micbtn" data-mic="pilotName" aria-label="Speak your name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="pilotMarina">Marina / boatyard</label>
+          <div class="fieldrow"><div class="grow"><input type="text" id="pilotMarina"></div><button class="micbtn" data-mic="pilotMarina" aria-label="Speak the marina name">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="pilotEmail">Email</label>
+          <div class="fieldrow"><div class="grow"><input type="email" id="pilotEmail"></div><button class="micbtn" data-mic="pilotEmail" aria-label="Speak your email">🎤</button></div></div>
+        <div class="field"><label class="flabel" for="pilotSlips">How many slips?</label>
+          <div class="fieldrow"><div class="grow"><input type="number" id="pilotSlips" min="1"></div><button class="micbtn" data-mic="pilotSlips" aria-label="Speak the slip count">🎤</button></div></div>
+      </div>
+      <label class="gatecheck"><input type="checkbox" id="pilotTerms">
+        <span>I understand SlipDesk prepares the renewal packet from the records I provide; the marina reviews and sends every contract, boaters sign their own renewals, and nothing is billed until the pilot is confirmed by email.</span></label>
+      <button class="btn" id="pilotSubmit" disabled>Request the pilot by email</button>
+    </div>
+  </section>
+
+  <!-- HELP -->
+  <section class="panel" id="view-help">
+    <h2>Help</h2>
+    <p class="pdesc">Short answers for the jobs SlipDesk does. Stuck on something else? Email us — a person reads it.</p>
+    <details><summary>How a renewal flows, start to finish</summary><p>1) The slip sits at <b>Not started</b>. 2) From the slip's file, open the boater link preview and mark the link sent — the slip becomes <b>Invited</b> and the chase clock starts. 3) The boater reviews, adds their insurance certificate and registration on their own link, and signs — the slip becomes <b>Signed</b>. 4) When the certificate and registration pass your policy settings and the deposit is in, the slip shows <b>Renewed</b>. Nothing is signed by SlipDesk at any step: the boater signs their own renewal, and you review it.</p></details>
+    <details><summary>What counts as an outstanding insurance certificate?</summary><p>Three things, all judged against <b>your</b> settings: no certificate on file, a certificate that expires before the season starts, or a liability limit below the minimum set in Settings. SlipDesk does not know the law on this — the minimum is your marina's policy, so confirm it with your insurance agent (see the VERIFY note in Settings).</p></details>
+    <details><summary>How does the chase queue decide who is first?</summary><p>By days waiting since the last touch — link sent, a logged contact, or a signature — longest first. Each contact you log restarts that slip's clock. The suggested step follows your ladder: link, first nudge, second nudge, final notice. After the final notice you decide whether to release the slip to the waitlist; SlipDesk never releases a slip on its own.</p></details>
+    <details><summary>How do waitlist offers work?</summary><p>On a declined or released slip, open the Waitlist and offer it to the first waiting boater whose boat fits. The offer holds for the window set in Settings (7 days in this demo), then expires by itself. If the boater accepts, they become the slip's holder at <b>Not started</b> and their renewal begins.</p></details>
+    <details><summary>Where does my data live? How do I back it up?</summary><p>Your data lives in this browser on this device — SlipDesk has no account and no server, and this demo transmits nothing. Back it up from <b>Export → Download backup (JSON)</b>, and restore from the same screen. Do the backup before clearing browser data or switching devices.</p></details>
+    <details><summary>Can I talk instead of typing?</summary><p>Yes — every entry field has a microphone button. One tap and the app is listening; what you say lands in the field for you to check before saving, and nothing sends itself. Voice entry needs a browser that supports it (hosted versions); where it isn't available the button tells you plainly and typing works as always.</p></details>
+    <div class="formcard">
+      <h3>Still stuck?</h3>
+      <p style="font-size:13.5px; margin-bottom:12px;">Email us what you were trying to do and what happened. Support is included — no account, no fee.</p>
+      <a class="btn" id="emailUsBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=SlipDesk%20help%20%E2%80%94%20v0.1.0-demo&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A">Email us</a>
+    </div>
+  </section>
+</main>
+</div><!-- /appShell -->
+<div id="printArea"></div>
+<div id="toast"></div>
+<div style="max-width:1180px; margin:0 auto; padding:0 20px 26px; color:var(--mut); font-size:12.5px;">
+  SlipDesk v0.1.0-demo · Seller: White Wolf Apps · Demo with fictional data — “Grand Lake Marina &amp; Boatyard” is a fictional marina. Questions: use Help → Email us.
+</div>
+
+<script>
+"use strict";
+
+/* ================= helpers ================= */
+var LS_KEY = "slipdesk_demo_v1";
+function $(id){ return document.getElementById(id); }
+function esc(v){ return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function money(n){ return "$" + Math.round(Number(n||0)).toLocaleString("en-US"); }
+function toast(msg){ var t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(function(){ t.style.display = "none"; }, 3600); }
+function p2(n){ return (n<10?"0":"") + n; }
+function dISO(d){ return d.getFullYear() + "-" + p2(d.getMonth()+1) + "-" + p2(d.getDate()); }
+function daysFromNow(n){ var d = new Date(); d.setDate(d.getDate()+n); return dISO(d); }
+function todayISO(){ return dISO(new Date()); }
+function isValidDateString(x){ if(typeof x !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(x)) return false; var d = new Date(x+"T00:00:00"); return !isNaN(d) && dISO(d) === x; }
+function diffDays(iso){ if(!isValidDateString(iso)) return null; var t = new Date(); t.setHours(0,0,0,0); var s = new Date(iso+"T00:00:00"); return Math.round((s - t)/86400000); }
+function daysSince(iso){ var d = diffDays(iso); return d === null ? null : -d; }
+function fmtDate(iso){ if(!isValidDateString(iso)) return "—"; return new Date(iso+"T00:00:00").toLocaleDateString("en-US",{month:"short", day:"numeric", year:"numeric"}); }
+function plural(n, w){ return n + " " + w + (n===1?"":"s"); }
+
+/* ================= seed ================= */
+var FIRST = ["James","Mary","Robert","Patricia","John","Jennifer","Michael","Linda","David","Elizabeth","William","Barbara","Richard","Susan","Joseph","Jessica","Thomas","Sarah","Charles","Karen","Daniel","Nancy","Matthew","Lisa","Anthony","Betty","Mark","Margaret","Donald","Sandra","Steven","Ashley","Paul","Kimberly","Andrew","Emily","Kenneth","Michelle","Kevin","Dorothy","Brian","Amanda","Timothy","Melissa","Ronald","Rebecca","Gary","Deborah"];
+var LAST = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez","Hernandez","Lopez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin","Lee","Thompson","White","Harris","Clark","Lewis","Robinson","Walker","Young","Allen","King","Wright","Torres","Scott","Hill","Flores","Green","Adams","Nelson","Baker","Hall","Rivera","Campbell","Mitchell","Carter","Roberts","Alvarez","Bennett","Foster","Griffin","Hayes","Myers"];
+var BOATS = ["Second Wind","Knot On Call","Reel Time","Dock Holiday","Seas the Day","Wet Dream","Anchor Away","Pier Pressure","Nauti Lady","Lake Effect","Serenity Now","Gone Fishin","Happy Ours","Liquid Asset","No Worries","Sun Chaser","Bass Ackwards","Wanderlust","Calm Waters","Driftwood","Knot Bad","Aft'r Thought","Buoy Call","Mooring Glory","Slip Happens","Wave Runner","Tide Together","Port of Call","Lazy Daze","Cat Nap","Otter Be","Fishful Thinking"];
+var CARRIERS = ["SafeHarbor Marine","LakeGuard Insurance","Beacon Marine Mutual","Harborline Casualty","Bluewater Assurance"];
+function seedData(){
+  var settings = { marinaName:"Grand Lake Marina & Boatyard", seasonName:"2027 season", seasonStart:"2027-04-01", seasonEnd:"2027-10-31", seasonMonths:7, depositMonths:1, requiredLiability:300000, offerWindowDays:7, contractDue:"2027-02-15" };
+  var slips = [];
+  var docks = [ ["A",24,30],["B",24,40],["C",20,50],["D",16,65] ];
+  var n = 0;
+  docks.forEach(function(dk){
+    for(var k=1;k<=dk[1];k++){
+      var i = n; n++;
+      var code = dk[0] + "-" + (k<10?"0":"") + k;
+      var maxLen = dk[2] + ((i*7)%3)*5 - 5; if(maxLen < 20) maxLen = 20;
+      var rate = Math.round((maxLen*8 + ((i*13)%5)*10)/5)*5;
+      var fn = FIRST[(i*7)%FIRST.length], ln = LAST[(i*11+3)%LAST.length];
+      var holder = fn + " " + ln;
+      var email = (fn + "." + ln + "@example.com").toLowerCase().replace(/[^a-z.@]/g,"");
+      var boat = BOATS[(i*5+1)%BOATS.length];
+      var boatLen = Math.max(16, maxLen - 4 - (i%6));
+      var stage, ins, reg, signedDate = null, sentDate = null, depositPaid = false, paid = 0, chase = [];
+      var insOk = { carrier:CARRIERS[i%CARRIERS.length], policy:"MP-" + (4100+i*17), limit:(i%3===0?500000:300000), exp:"2028-0" + (1+(i%6)) + "-15" };
+      var regOk = { state:"OK", num:"OK " + (2200+i*31) + " " + String.fromCharCode(65+(i%26)) + String.fromCharCode(65+((i*3)%26)), exp:"2027-12-31" };
+      if(i < 51){ stage = "signed"; ins = insOk; reg = regOk; signedDate = daysFromNow(-(12+(i%38))); depositPaid = true; paid = rate*(settings.seasonMonths + settings.depositMonths); }
+      else if(i < 63){ stage = "signed"; signedDate = daysFromNow(-(3+(i%16))); depositPaid = true; paid = rate*settings.depositMonths;
+        if(i <= 57){ /* insurance deficient in one of three ways */
+          if(i===53){ ins = { carrier:CARRIERS[1], policy:"MP-" + (4100+i*17), limit:300000, exp:"2026-11-30" }; }
+          else if(i===54){ ins = { carrier:CARRIERS[2], policy:"MP-" + (4100+i*17), limit:300000, exp:"2027-03-01" }; }
+          else if(i===55){ ins = { carrier:CARRIERS[3], policy:"MP-" + (4100+i*17), limit:100000, exp:"2028-01-15" }; }
+          else if(i===56){ ins = { carrier:CARRIERS[4], policy:"MP-" + (4100+i*17), limit:250000, exp:"2028-01-15" }; }
+          else { ins = null; }
+          reg = regOk;
+        } else { ins = insOk;
+          if(i===58 || i===59 || i===62){ reg = null; }
+          else if(i===60){ reg = { state:"OK", num:regOk.num, exp:"2026-12-31" }; }
+          else { reg = { state:"OK", num:regOk.num, exp:"2027-02-01" }; }
+        }
+      }
+      else if(i < 73){ stage = "invited"; sentDate = daysFromNow(-(2+((i*3)%24)));
+        if(i===63){ ins = { carrier:CARRIERS[0], policy:"MP-" + (4100+i*17), limit:300000, exp:"2026-10-15" }; }
+        else if(i===64){ ins = { carrier:CARRIERS[1], policy:"MP-" + (4100+i*17), limit:300000, exp:"2026-09-30" }; }
+        else { ins = insOk; }
+        reg = regOk;
+        if(i%3===0){ chase = [{ date:daysFromNow(-(1+(i%9))), kind:"First nudge", note:"Emailed the renewal reminder." }]; }
+      }
+      else if(i < 79){ stage = "not-started"; ins = insOk; reg = regOk; }
+      else if(i < 82){ stage = "declined"; ins = insOk; reg = regOk; }
+      else { stage = "released"; ins = insOk; reg = regOk; }
+      slips.push({ id:i+1, code:code, dock:dk[0], maxLen:maxLen, holder:holder, email:email, boat:boat, boatLen:boatLen, rate:rate, stage:stage, ins:ins, reg:reg, signedDate:signedDate, sentDate:sentDate, depositPaid:depositPaid, paid:paid, chase:chase, notes:"" });
+    }
+  });
+  var waitlist = [];
+  var wNames = [["Caleb","Ortiz","Dockside Dreamer",34],["Hannah","Price","Knotty Girl",28],["Victor","Nguyen","Reel Deal",42],["Paula","Sweeney","Sweeney Toddler",24],["Marcus","Bell","Bell Buoy",38],["Erin","Kowalski","Pier Review",31],["Sam","Delacroix","Cajun Queen",45],["Grace","Lindqvist","Nordic Star",29]];
+  var offerSlips = [80,81,82,83]; /* slip ids of declined/released */
+  wNames.forEach(function(w, ix){
+    var e = { id:ix+1, name:w[0]+" "+w[1], email:(w[0]+"."+w[1]+"@example.com").toLowerCase(), boat:w[2], boatLen:w[3], status:"waiting", offeredSlipId:null, offerDate:null };
+    if(ix < 4){ e.status = "offered"; e.offeredSlipId = offerSlips[ix]; e.offerDate = daysFromNow(-(2+ix)); }
+    if(ix === 7){ e.status = "expired"; e.offeredSlipId = 84; e.offerDate = daysFromNow(-20); }
+    waitlist.push(e);
+  });
+  return { settings:settings, slips:slips, waitlist:waitlist, meta:{ termsAccepted:false, recovered:false, nextSlipId:85, nextWaitId:9 } };
+}
+
+/* ================= storage integrity (entry/field sanitize-on-load) ================= */
+function isPlainObject(x){ return !!x && typeof x === "object" && !Array.isArray(x); }
+function asStr(x){ return x === null || x === undefined ? "" : String(x); }
+function asNum(x, fb){ return typeof x === "number" && isFinite(x) ? x : (typeof x === "string" && x.trim() !== "" && isFinite(Number(x)) ? Number(x) : fb); }
+function asNonNeg(x, fb){ var v = asNum(x, fb); return v >= 0 ? v : fb; }
+function asPosInt(x, fb){ var v = asNum(x, fb); return Math.floor(v) === v && v > 0 ? v : fb; }
+function asBool(x){ return x === true; }
+function asDateOrNull(x){ return isValidDateString(x) ? x : null; }
+var STAGES = ["not-started","invited","signed","declined","released"];
+function sanitizeIns(x){ if(!isPlainObject(x)) return null; var c = asStr(x.carrier).trim(); if(!c) return null; return { carrier:c, policy:asStr(x.policy), limit:asNonNeg(x.limit, 0), exp:asDateOrNull(x.exp) }; }
+function sanitizeReg(x){ if(!isPlainObject(x)) return null; var s = asStr(x.state).trim(); if(!s) return null; return { state:s, num:asStr(x.num), exp:asDateOrNull(x.exp) }; }
+function sanitizeChase(x){ if(!Array.isArray(x)) return []; var out = []; x.forEach(function(c){ if(isPlainObject(c) && isValidDateString(c.date)){ out.push({ date:c.date, kind:asStr(c.kind)||"Contact", note:asStr(c.note) }); } }); return out; }
+function sanitizeSlip(x){
+  if(!isPlainObject(x)) return null;
+  var id = asPosInt(x.id, null); if(id === null) return null;
+  var stage = STAGES.indexOf(x.stage) >= 0 ? x.stage : "not-started";
+  return { id:id, code:asStr(x.code) || ("SLIP-" + id), dock:asStr(x.dock) || "A", maxLen:asPosInt(x.maxLen, 30), holder:asStr(x.holder), email:asStr(x.email), boat:asStr(x.boat), boatLen:asNonNeg(x.boatLen, 0), rate:asNonNeg(x.rate, 0), stage:stage, ins:sanitizeIns(x.ins), reg:sanitizeReg(x.reg), signedDate:asDateOrNull(x.signedDate), sentDate:asDateOrNull(x.sentDate), depositPaid:asBool(x.depositPaid), paid:asNonNeg(x.paid, 0), chase:sanitizeChase(x.chase), notes:asStr(x.notes) };
+}
+var WSTATUSES = ["waiting","offered","accepted","declined","expired"];
+function sanitizeWait(x){
+  if(!isPlainObject(x)) return null;
+  var id = asPosInt(x.id, null); if(id === null) return null;
+  return { id:id, name:asStr(x.name), email:asStr(x.email), boat:asStr(x.boat), boatLen:asNonNeg(x.boatLen, 0), status:WSTATUSES.indexOf(x.status) >= 0 ? x.status : "waiting", offeredSlipId:asPosInt(x.offeredSlipId, null), offerDate:asDateOrNull(x.offerDate) };
+}
+function sanitizeSettings(x){
+  var d = seedData().settings; if(!isPlainObject(x)) return d;
+  return { marinaName:asStr(x.marinaName) || d.marinaName, seasonName:asStr(x.seasonName) || d.seasonName,
+    seasonStart:asDateOrNull(x.seasonStart) || d.seasonStart, seasonEnd:asDateOrNull(x.seasonEnd) || d.seasonEnd,
+    seasonMonths:Math.min(12, Math.max(1, asPosInt(x.seasonMonths, d.seasonMonths))), depositMonths:Math.min(6, Math.max(0, Math.floor(asNonNeg(x.depositMonths, d.depositMonths)))),
+    requiredLiability:asNonNeg(x.requiredLiability, d.requiredLiability), offerWindowDays:Math.min(30, Math.max(1, asPosInt(x.offerWindowDays, d.offerWindowDays))),
+    contractDue:asDateOrNull(x.contractDue) || d.contractDue };
+}
+function sanitizeState(p){
+  if(!isPlainObject(p)) return null;
+  if(!Array.isArray(p.slips) || !Array.isArray(p.waitlist)) return null;
+  var slips = [], seen = {};
+  p.slips.forEach(function(s){ var v = sanitizeSlip(s); if(v && !seen[v.id]){ seen[v.id] = 1; slips.push(v); } });
+  var waits = [], wseen = {};
+  p.waitlist.forEach(function(w){ var v = sanitizeWait(w); if(v && !wseen[v.id]){ wseen[v.id] = 1; waits.push(v); } });
+  var maxS = 0, maxW = 0;
+  slips.forEach(function(s){ if(s.id > maxS) maxS = s.id; });
+  waits.forEach(function(w){ if(w.id > maxW) maxW = w.id; });
+  var meta = isPlainObject(p.meta) ? p.meta : {};
+  return { settings:sanitizeSettings(p.settings), slips:slips, waitlist:waits,
+    meta:{ termsAccepted:asBool(meta.termsAccepted), recovered:asBool(meta.recovered), nextSlipId:Math.max(asPosInt(meta.nextSlipId, 1), maxS+1), nextWaitId:Math.max(asPosInt(meta.nextWaitId, 1), maxW+1) } };
+}
+function load(){
+  var raw = null;
+  try{ raw = localStorage.getItem(LS_KEY); }catch(e){}
+  if(raw){
+    try{
+      var healed = sanitizeState(JSON.parse(raw));
+      if(healed){ save(healed); return healed; }
+    }catch(e){}
+    /* main copy is damaged beyond shape repair: preserve its raw bytes, then restore
+       from the last-good backup if IT is valid (the normal real-world case — every save
+       refreshes the backup), and only reseed when there is nothing valid to restore. */
+    try{ localStorage.setItem(LS_KEY + "_corrupt", raw); }catch(e){}
+    try{
+      var braw = localStorage.getItem(LS_KEY + "_backup");
+      if(braw){
+        var bhealed = sanitizeState(JSON.parse(braw));
+        if(bhealed){ bhealed.meta.recovered = true; save(bhealed); return bhealed; }
+      }
+    }catch(e){}
+    var fresh = seedData(); fresh.meta.recovered = true; save(fresh); return fresh;
+  }
+  var s = seedData(); save(s); return s;
+}
+function save(s){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(s || state)); }catch(e){}
+  try{ localStorage.setItem(LS_KEY + "_backup", JSON.stringify(s || state)); }catch(e){}
+}
+
+/* ================= derived values (computed from the one record, never stored twice) ================= */
+var state = null;
+function S(){ return state.settings; }
+function seasonFee(s){ return s.rate * S().seasonMonths; }
+function depositDue(s){ return s.rate * S().depositMonths; }
+function totalDue(s){ return seasonFee(s) + depositDue(s); }
+function balance(s){ return Math.max(0, totalDue(s) - s.paid); }
+function insDeficient(s){ if(!s.ins) return "missing"; if(s.ins.limit < S().requiredLiability) return "below"; if(!s.ins.exp || s.ins.exp < S().seasonStart) return "expired"; return null; }
+function regDeficient(s){ if(!s.reg) return "missing"; if(!s.reg.exp || s.reg.exp < S().seasonStart) return "expired"; return null; }
+function docsOk(s){ return !insDeficient(s) && !regDeficient(s); }
+function isActive(s){ return s.stage === "not-started" || s.stage === "invited" || s.stage === "signed"; }
+function derivedStatus(s){
+  if(s.stage === "declined") return { key:"declined", label:"Declined", pill:"declined" };
+  if(s.stage === "released") return { key:"released", label:"Released", pill:"released" };
+  if(s.stage === "signed" && docsOk(s) && s.depositPaid) return { key:"renewed", label:"Renewed", pill:"renewed" };
+  if(s.stage === "signed") return { key:"docs", label:"Signed — docs pending", pill:"docs" };
+  if(s.stage === "invited") return { key:"invited", label:"Invited", pill:"invited" };
+  return { key:"not-started", label:"Not started", pill:"notstarted" };
+}
+function slipById(id){ for(var i=0;i<state.slips.length;i++){ if(state.slips[i].id === id) return state.slips[i]; } return null; }
+function waitById(id){ for(var i=0;i<state.waitlist.length;i++){ if(state.waitlist[i].id === id) return state.waitlist[i]; } return null; }
+function lastActivity(s){
+  var dates = [s.sentDate, s.signedDate];
+  s.chase.forEach(function(c){ dates.push(c.date); });
+  var best = null;
+  dates.forEach(function(d){ if(d && (best === null || d > best)) best = d; });
+  return best;
+}
+function aggregates(){
+  var a = { total:state.slips.length, active:0, renewed:0, certs:0, regOut:0, depositsIn:0, depositCount:0, contracted:0, expected:0, balanceOut:0, offers:0 };
+  state.slips.forEach(function(s){
+    if(isActive(s)){
+      a.active++;
+      if(insDeficient(s)) a.certs++;
+      if(regDeficient(s)) a.regOut++;
+      a.expected += totalDue(s);
+      a.balanceOut += balance(s);
+      if(derivedStatus(s).key === "renewed"){ a.renewed++; a.contracted += totalDue(s); }
+    }
+    if(s.depositPaid){ a.depositsIn += depositDue(s); a.depositCount++; }
+  });
+  state.waitlist.forEach(function(w){ if(w.status === "offered") a.offers++; });
+  a.renewedPct = a.active ? Math.round(100 * a.renewed / a.active) : 0;
+  return a;
+}
+function chaseReason(s){
+  if(s.stage === "signed"){
+    if(insDeficient(s)) return "Insurance certificate outstanding";
+    if(regDeficient(s)) return "Registration outstanding";
+    if(!s.depositPaid) return "Deposit not yet in";
+    return "Final balance open";
+  }
+  if(s.stage === "invited") return "No reply since the renewal link was sent";
+  return "Renewal link not sent yet";
+}
+var LADDER = ["Send the renewal link","First nudge","Second nudge","Final notice"];
+var DOCSLADDER = ["Send the document request","First nudge","Second nudge","Final notice"];
+function chaseQueue(){
+  var q = [];
+  state.slips.forEach(function(s){
+    if(!isActive(s)) return;
+    if(derivedStatus(s).key === "renewed") return;
+    var la = lastActivity(s);
+    var waiting = la ? (daysSince(la) || 0) : 999;
+    var ladder = s.stage === "signed" ? DOCSLADDER : LADDER;
+    var step = ladder[Math.min(s.chase.length, ladder.length - 1)];
+    q.push({ slip:s, waiting:waiting, reason:chaseReason(s), step:step });
+  });
+  q.sort(function(a, b){ return b.waiting - a.waiting || a.slip.code.localeCompare(b.slip.code); });
+  return q;
+}
+
+/* ================= views ================= */
+var currentView = "dashboard";
+function showView(name){
+  currentView = name;
+  var btns = document.querySelectorAll("#mainNav button");
+  for(var i=0;i<btns.length;i++){ btns[i].classList.toggle("active", btns[i].getAttribute("data-view") === name); }
+  var panels = document.querySelectorAll("section.panel");
+  for(var j=0;j<panels.length;j++){ panels[j].classList.toggle("active", panels[j].id === "view-" + name); }
+  renderAll();
+}
+function renderAll(){
+  if(!state || !state.meta.termsAccepted) return;
+  renderHeader(); renderDashboard(); renderSlips(); renderChase(); renderWaitlist(); fillSettingsForm();
+}
+function renderHeader(){
+  $("barMarina").textContent = S().marinaName;
+  $("barSeason").textContent = S().seasonName.replace(/ season$/i,"") + " (" + fmtDate(S().seasonStart) + " – " + fmtDate(S().seasonEnd) + ")";
+  $("barDue").textContent = fmtDate(S().contractDue);
+}
+function renderDashboard(){
+  var a = aggregates();
+  $("dRenewed").textContent = a.renewed + " · " + a.renewedPct + "%";
+  $("dRenewedNote").textContent = "of " + a.active + " slips with a current holder";
+  $("dCerts").textContent = a.certs;
+  $("dDeposits").textContent = money(a.depositsIn);
+  $("dDepositsNote").textContent = a.depositCount + " deposits in hand";
+  $("dOffers").textContent = a.offers;
+  $("dContracted").textContent = money(a.contracted);
+  $("dExpected").textContent = money(a.expected);
+  $("dBalance").textContent = money(a.balanceOut);
+  $("recoverBanner").innerHTML = state.meta.recovered ? '<div class="riskbanner"><b>Heads up:</b> the saved data on this device was damaged and could not be read, so the demo data was restored. The damaged copy was preserved under a separate key — nothing was silently overwritten. Restore from a backup in Export if you have one.</div>' : "";
+  var q = chaseQueue().slice(0, 5);
+  $("dAttention").innerHTML = q.length ? q.map(function(it){
+    return "<li><b>" + esc(it.slip.code) + "</b> — " + esc(it.slip.holder) + ": " + esc(it.reason.toLowerCase()) + " · " + (it.waiting >= 900 ? "not started yet" : "waiting " + plural(it.waiting, "day")) + " · next: " + esc(it.step) + "</li>";
+  }).join("") : "<li>Nothing waiting — every active slip is renewed or was touched today.</li>";
+}
+
+/* ---------- slips list + detail ---------- */
+var slipFilter = "all", slipQuery = "", detailSlipId = null;
+function slipMatches(s){
+  var st = derivedStatus(s).key;
+  if(slipFilter === "renewed" && st !== "renewed") return false;
+  if(slipFilter === "docs" && st !== "docs") return false;
+  if(slipFilter === "invited" && st !== "invited") return false;
+  if(slipFilter === "not-started" && st !== "not-started") return false;
+  if(slipFilter === "gone" && st !== "declined" && st !== "released") return false;
+  if(slipQuery){ var hay = (s.code + " " + s.holder + " " + s.boat + " " + s.email).toLowerCase(); if(hay.indexOf(slipQuery.toLowerCase()) < 0) return false; }
+  return true;
+}
+function docCell(kind, def){
+  if(!def) return '<span style="color:var(--green); font-weight:700;">✓ On file</span>';
+  return '<span style="color:var(--red); font-weight:700;">✗ ' + (def === "missing" ? "Missing" : def === "expired" ? "Expired" : "Below minimum") + "</span>";
+}
+function renderSlips(){
+  var rows = state.slips.filter(slipMatches);
+  $("slipRows").innerHTML = rows.length ? rows.map(function(s){
+    var st = derivedStatus(s);
+    return '<tr class="clickable" data-slip="' + s.id + '"><td><b>' + esc(s.code) + '</b><br><span style="color:var(--mut); font-size:12px;">fits ' + s.maxLen + ' ft</span></td>' +
+      "<td>" + esc(s.holder) + '<br><span style="color:var(--mut); font-size:12px;">' + esc(s.email) + "</span></td>" +
+      "<td>" + esc(s.boat) + '<br><span style="color:var(--mut); font-size:12px;">' + (s.boatLen ? s.boatLen + " ft" : "—") + "</span></td>" +
+      '<td><span class="pill ' + st.pill + '">' + st.label + "</span></td>" +
+      "<td>" + docCell("ins", insDeficient(s)) + "</td><td>" + docCell("reg", regDeficient(s)) + "</td>" +
+      "<td>" + (isActive(s) ? money(balance(s)) : "—") + "</td></tr>";
+  }).join("") : '<tr><td colspan="7">No slips match. Clear the search or pick another filter.</td></tr>';
+  var trs = document.querySelectorAll("#slipRows tr[data-slip]");
+  for(var i=0;i<trs.length;i++){ trs[i].addEventListener("click", function(){ openSlipDetail(Number(this.getAttribute("data-slip"))); }); }
+  if(detailSlipId !== null){ var s = slipById(detailSlipId); if(s) renderSlipDetail(s); }
+}
+function docChecklist(s){
+  var items = [];
+  items.push({ ok:!insDeficient(s), label: insDeficient(s) === "missing" ? "Insurance certificate — none on file" : insDeficient(s) === "below" ? "Insurance liability " + money(s.ins.limit) + " is below your required minimum of " + money(S().requiredLiability) : insDeficient(s) === "expired" ? "Insurance certificate expires " + fmtDate(s.ins.exp) + " — before the season starts " + fmtDate(S().seasonStart) : "Insurance certificate — " + s.ins.carrier + ", liability " + money(s.ins.limit) + ", expires " + fmtDate(s.ins.exp) });
+  items.push({ ok:!regDeficient(s), label: regDeficient(s) === "missing" ? "Boat registration — none on file" : regDeficient(s) === "expired" ? "Boat registration expires " + fmtDate(s.reg.exp) + " — before the season starts" : "Boat registration — " + s.reg.state + " " + s.reg.num + ", expires " + fmtDate(s.reg.exp) });
+  items.push({ ok:!!s.signedDate, label: s.signedDate ? "Renewal signed " + fmtDate(s.signedDate) : "Renewal not yet signed" });
+  items.push({ ok:!!s.depositPaid, label: s.depositPaid ? "Deposit in hand — " + money(depositDue(s)) : "Deposit not yet paid — " + money(depositDue(s)) + " due" });
+  return items;
+}
+function openSlipDetail(id){ detailSlipId = id; var s = slipById(id); if(s) renderSlipDetail(s); }
+function renderSlipDetail(s){
+  var st = derivedStatus(s);
+  var checks = docChecklist(s);
+  var chaseHtml = s.chase.length ? s.chase.map(function(c){ return "<li>" + fmtDate(c.date) + " — <b>" + esc(c.kind) + "</b>" + (c.note ? " · " + esc(c.note) : "") + "</li>"; }).join("") : "<li>No contacts logged yet.</li>";
+  $("slipDetail").innerHTML =
+    '<div class="formcard" style="max-width:960px;">' +
+    '<div class="toolbar"><h3>Slip ' + esc(s.code) + " — " + esc(s.holder) + '</h3><span class="spacer"></span><span class="pill ' + st.pill + '">' + st.label + "</span></div>" +
+    '<p style="font-size:13.5px; margin-bottom:6px;">' + esc(s.boat) + (s.boatLen ? " · " + s.boatLen + " ft" : "") + " · Slip fits " + s.maxLen + " ft · " + money(s.rate) + '/mo</p>' +
+    '<p style="font-size:13.5px; margin-bottom:12px;">Season fee ' + money(seasonFee(s)) + " (" + S().seasonMonths + " months) + deposit " + money(depositDue(s)) + " = <b>" + money(totalDue(s)) + " due</b> · paid " + money(s.paid) + " · balance <b>" + money(balance(s)) + "</b></p>" +
+    "<h3 style=\"margin-bottom:6px;\">Renewal checklist</h3>" +
+    '<ul class="checklist">' + checks.map(function(c){ return '<li><span class="' + (c.ok ? "pass" : "fail") + '">' + (c.ok ? "✓" : "✗") + "</span> " + esc(c.label) + "</li>"; }).join("") + "</ul>" +
+    "<h3 style=\"margin-bottom:6px;\">Chase history</h3>" +
+    '<ul class="checklist">' + chaseHtml + "</ul>" +
+    '<div class="toolbar">' +
+      '<button class="btn" data-act="contract" data-id="' + s.id + '">Generate renewal contract</button>' +
+      '<button class="btn blue" data-act="link" data-id="' + s.id + '">Boater link preview</button>' +
+      '<button class="btn secondary" data-act="contact" data-id="' + s.id + '">Log a contact</button>' +
+      (s.stage === "invited" || s.stage === "not-started" ? '<button class="btn secondary" data-act="sent" data-id="' + s.id + '">Mark link sent</button>' : "") +
+      (s.stage === "signed" && !s.depositPaid ? '<button class="btn secondary" data-act="deposit" data-id="' + s.id + '">Record deposit paid</button>' : "") +
+      '<button class="btn secondary" data-act="edit" data-id="' + s.id + '">Edit record</button>' +
+    "</div>" +
+    '<div id="slipDoc"></div>' +
+    "</div>";
+  var btns = document.querySelectorAll("#slipDetail [data-act]");
+  for(var i=0;i<btns.length;i++){ btns[i].addEventListener("click", function(){ slipAction(this.getAttribute("data-act"), Number(this.getAttribute("data-id"))); }); }
+}
+function missingFacts(s){
+  var m = [];
+  if(!s.holder) m.push("holder name");
+  if(!s.email) m.push("holder email");
+  if(insDeficient(s) === "missing") m.push("insurance certificate");
+  if(insDeficient(s) === "below") m.push("insurance liability at or above " + money(S().requiredLiability));
+  if(insDeficient(s) === "expired") m.push("insurance certificate covering the season start");
+  if(regDeficient(s)) m.push("current boat registration");
+  if(!s.signedDate) m.push("boater signature");
+  if(!s.depositPaid) m.push("deposit");
+  return m;
+}
+function contractText(s){
+  var miss = missingFacts(s);
+  var lines = [];
+  if(miss.length){ lines.push("DRAFT — DO NOT SEND — MISSING: " + miss.join("; ").toUpperCase()); lines.push(""); }
+  lines.push(S().marinaName.toUpperCase());
+  lines.push("SLIP RENEWAL CONTRACT — " + S().seasonName.toUpperCase());
+  lines.push("");
+  lines.push("Slip: " + s.code + " (Dock " + s.dock + ", fits boats to " + s.maxLen + " ft)");
+  lines.push("Holder: " + s.holder + " <" + s.email + ">");
+  lines.push("Boat: " + s.boat + (s.boatLen ? " (" + s.boatLen + " ft)" : ""));
+  lines.push("Season: " + fmtDate(S().seasonStart) + " to " + fmtDate(S().seasonEnd));
+  lines.push("Monthly rate: " + money(s.rate) + " × " + S().seasonMonths + " months = season fee " + money(seasonFee(s)));
+  lines.push("Deposit: " + money(depositDue(s)) + " (" + S().depositMonths + " month of rate)");
+  lines.push("Total for the season: " + money(totalDue(s)) + " · Paid so far: " + money(s.paid) + " · Balance: " + money(balance(s)));
+  lines.push("");
+  lines.push("INSURANCE & REGISTRATION (marina policy settings — VERIFY with your insurer / state boating authority):");
+  lines.push("  Insurance: " + (s.ins ? s.ins.carrier + ", policy " + s.ins.policy + ", liability " + money(s.ins.limit) + ", expires " + fmtDate(s.ins.exp) : "none on file") + " (required minimum " + money(S().requiredLiability) + ")");
+  lines.push("  Registration: " + (s.reg ? s.reg.state + " " + s.reg.num + ", expires " + fmtDate(s.reg.exp) : "none on file"));
+  lines.push("");
+  lines.push("Terms: The holder keeps a current insurance certificate and boat registration on file with the marina for the whole season. This contract is prepared by SlipDesk from the marina's records; it is signed by the holder and accepted by the marina — SlipDesk does not sign for either party.");
+  lines.push("");
+  lines.push("Holder signature: ______________________________  Date: ____________");
+  lines.push("Signed date on file: " + (s.signedDate ? fmtDate(s.signedDate) : "not yet signed"));
+  lines.push("Contracts are due back by " + fmtDate(S().contractDue) + ".");
+  return lines.join("\n");
+}
+function reminderText(it){
+  var s = it.slip;
+  if(s.stage === "signed"){
+    return "Hi " + s.holder.split(" ")[0] + " — thanks for signing your " + S().seasonName + " renewal for slip " + s.code + " at " + S().marinaName + ". One thing is still open: " + it.reason.toLowerCase() + ". Your balance for the season is " + money(balance(s)) + " (total " + money(totalDue(s)) + "). Contracts are due back by " + fmtDate(S().contractDue) + " — reply to this email and we'll get it finished. — " + S().marinaName;
+  }
+  return "Hi " + s.holder.split(" ")[0] + " — your " + S().seasonName + " renewal for slip " + s.code + " at " + S().marinaName + " (" + s.boat + ") is waiting on your renewal link. Season fee " + money(seasonFee(s)) + " plus a " + money(depositDue(s)) + " deposit, due back by " + fmtDate(S().contractDue) + ". If you're not coming back this season, just reply and say so — we'll offer the slip to the waitlist and wish you well. — " + S().marinaName;
+}
+
+/* ---------- chase ---------- */
+var chaseDetailId = null;
+function renderChase(){
+  var q = chaseQueue();
+  $("chaseRows").innerHTML = q.length ? q.map(function(it){
+    return "<tr><td><b>" + esc(it.slip.code) + "</b></td><td>" + esc(it.slip.holder) + "</td><td>" + esc(it.reason) + "</td><td>" + (it.waiting >= 900 ? "not started" : plural(it.waiting, "day")) + "</td><td>" + esc(it.step) + '</td><td><button class="btn small" data-chase="' + it.slip.id + '">Draft &amp; log</button></td></tr>';
+  }).join("") : '<tr><td colspan="6">The queue is empty — every active slip is renewed. Nice spring.</td></tr>';
+  var btns = document.querySelectorAll("#chaseRows [data-chase]");
+  for(var i=0;i<btns.length;i++){ btns[i].addEventListener("click", function(){ openChaseDetail(Number(this.getAttribute("data-chase"))); }); }
+  if(chaseDetailId !== null){
+    var it2 = null, q2 = chaseQueue();
+    for(var j=0;j<q2.length;j++){ if(q2[j].slip.id === chaseDetailId) it2 = q2[j]; }
+    if(it2) renderChaseDetail(it2); else { chaseDetailId = null; $("chaseDetail").innerHTML = ""; }
+  }
+}
+function openChaseDetail(id){
+  chaseDetailId = id;
+  var q = chaseQueue();
+  for(var i=0;i<q.length;i++){ if(q[i].slip.id === id){ renderChaseDetail(q[i]); return; } }
+}
+function renderChaseDetail(it){
+  $("chaseDetail").innerHTML =
+    '<div class="formcard" style="max-width:860px;"><h3>Chase ' + esc(it.slip.code) + " — " + esc(it.slip.holder) + "</h3>" +
+    '<p style="font-size:13.5px; margin-bottom:8px;">Next step: <b>' + esc(it.step) + "</b> · " + esc(it.reason) + " · waiting " + plural(it.waiting, "day") + ".</p>" +
+    '<div class="field"><label class="flabel" for="chaseText">Message (drafted from the slip\'s real facts — edit freely; you send it from your own email)</label><div class="fieldrow"><div class="grow"><textarea id="chaseText" rows="5">' + esc(reminderText(it)) + '</textarea></div><button class="micbtn" data-mic="chaseText" aria-label="Speak the message">🎤</button></div></div>' +
+    '<div class="toolbar"><button class="btn" id="chaseLogBtn">Log this contact (sent today)</button>' +
+    '<button class="btn secondary" id="chaseCopyBtn">Copy message</button></div></div>';
+  $("chaseLogBtn").addEventListener("click", function(){
+    var s = it.slip;
+    s.chase.push({ date:todayISO(), kind:it.step, note:"Contact logged from the chase queue." });
+    save(); chaseDetailId = null; $("chaseDetail").innerHTML = "";
+    renderAll(); toast("Logged — " + s.code + "'s chase clock restarts today.");
+  });
+  $("chaseCopyBtn").addEventListener("click", function(){
+    var ta = $("chaseText"); ta.select();
+    var done = function(){ toast("Message copied — paste it into your email to " + it.slip.holder + "."); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(ta.value).then(done, function(){ document.execCommand("copy"); done(); }); }
+    else { document.execCommand("copy"); done(); }
+  });
+}
+
+/* ---------- waitlist ---------- */
+function renderWaitlist(){
+  $("waitRows").innerHTML = state.waitlist.length ? state.waitlist.map(function(w, ix){
+    var offered = w.offeredSlipId !== null ? slipById(w.offeredSlipId) : null;
+    var acts = "";
+    if(w.status === "waiting"){ acts = availableSlipsFor(w).length ? '<button class="btn small" data-offer="' + w.id + '">Offer a slip</button>' : '<span style="color:var(--mut);">no fitting slip free</span>'; }
+    if(w.status === "offered"){ acts = '<button class="btn small" data-accept="' + w.id + '">Mark accepted</button> <button class="btn small secondary" data-wdecline="' + w.id + '">Mark declined</button>'; }
+    var exp = "";
+    if(w.status === "offered" && w.offerDate){ var left = S().offerWindowDays - (daysSince(w.offerDate) || 0); exp = left > 0 ? " · " + plural(left, "day") + " left" : " · window passed"; }
+    return "<tr><td>" + (ix+1) + "</td><td>" + esc(w.name) + '<br><span style="color:var(--mut); font-size:12px;">' + esc(w.email) + "</span></td><td>" + esc(w.boat) + "</td><td>" + w.boatLen + ' ft</td><td><span class="pill ' + w.status + '">' + w.status + "</span>" + exp + "</td><td>" + (offered ? esc(offered.code) : "—") + "</td><td>" + acts + "</td></tr>";
+  }).join("") : '<tr><td colspan="7">The waitlist is empty.</td></tr>';
+  var ob = document.querySelectorAll("#waitRows [data-offer]");
+  for(var i=0;i<ob.length;i++){ ob[i].addEventListener("click", function(){ offerSlip(Number(this.getAttribute("data-offer"))); }); }
+  var ab = document.querySelectorAll("#waitRows [data-accept]");
+  for(var j=0;j<ab.length;j++){ ab[j].addEventListener("click", function(){ acceptOffer(Number(this.getAttribute("data-accept"))); }); }
+  var db = document.querySelectorAll("#waitRows [data-wdecline]");
+  for(var k=0;k<db.length;k++){ db[k].addEventListener("click", function(){ declineOffer(Number(this.getAttribute("data-wdecline"))); }); }
+}
+function availableSlipsFor(w){
+  return state.slips.filter(function(s){
+    if(s.stage !== "declined" && s.stage !== "released") return false;
+    if(w.boatLen > s.maxLen) return false;
+    var taken = state.waitlist.some(function(o){ return o.status === "offered" && o.offeredSlipId === s.id; });
+    return !taken;
+  });
+}
+function offerSlip(waitId){
+  var w = waitById(waitId); if(!w) return;
+  var free = availableSlipsFor(w);
+  if(!free.length){ toast("No declined or released slip fits " + w.boatLen + " ft right now."); return; }
+  var s = free[0];
+  w.status = "offered"; w.offeredSlipId = s.id; w.offerDate = todayISO();
+  save(); renderAll();
+  toast("Offered slip " + s.code + " to " + w.name + " — the offer holds for " + plural(S().offerWindowDays, "day") + ".");
+}
+function acceptOffer(waitId){
+  var w = waitById(waitId); if(!w) return;
+  var s = w.offeredSlipId !== null ? slipById(w.offeredSlipId) : null;
+  w.status = "accepted";
+  if(s){
+    s.holder = w.name; s.email = w.email; s.boat = w.boat; s.boatLen = w.boatLen;
+    s.stage = "not-started"; s.ins = null; s.reg = null; s.signedDate = null; s.sentDate = null; s.depositPaid = false; s.paid = 0; s.chase = [];
+    s.notes = "Came from the waitlist (accepted offer).";
+  }
+  save(); renderAll();
+  toast(w.name + " accepted" + (s ? " — slip " + s.code + " is theirs and their renewal starts at Not started." : "."));
+}
+function declineOffer(waitId){
+  var w = waitById(waitId); if(!w) return;
+  w.status = "declined"; w.offeredSlipId = null; w.offerDate = null;
+  save(); renderAll(); toast(w.name + " marked declined — the slip can be offered to the next boater.");
+}
+
+/* ---------- slip detail actions ---------- */
+var linkSlipId = null;
+function slipAction(act, id){
+  var s = slipById(id); if(!s) return;
+  if(act === "contract"){
+    var html = '<div class="docbox" id="contractBox">' + esc(contractText(s)) + "</div>" +
+      '<div class="toolbar"><button class="btn" id="printContractBtn">Print contract</button></div>';
+    $("slipDoc").innerHTML = html;
+    $("printContractBtn").addEventListener("click", function(){
+      $("printArea").innerHTML = '<div class="docbox">' + esc(contractText(s)) + "</div>";
+      window.print();
+    });
+  }
+  if(act === "link"){ linkSlipId = id; renderLinkPreview(s); }
+  if(act === "contact"){
+    s.chase.push({ date:todayISO(), kind:"Contact", note:"Logged from the slip file." });
+    save(); renderAll(); openSlipDetail(id); showView("slips");
+    toast("Contact logged for " + s.code + " — the chase clock restarts today.");
+  }
+  if(act === "sent"){
+    s.sentDate = todayISO(); if(s.stage === "not-started") s.stage = "invited";
+    s.chase.push({ date:todayISO(), kind:"Renewal link sent", note:"Renewal link sent to " + s.email + "." });
+    save(); renderAll(); openSlipDetail(id); showView("slips");
+    toast("Renewal link marked sent for " + s.code + ".");
+  }
+  if(act === "deposit"){
+    s.depositPaid = true; if(s.paid < depositDue(s)) s.paid = depositDue(s);
+    save(); renderAll(); openSlipDetail(id); showView("slips");
+    toast("Deposit recorded for " + s.code + (derivedStatus(s).key === "renewed" ? " — this slip is now RENEWED." : "."));
+  }
+  if(act === "edit"){ fillSlipForm(s); showView("addslip"); }
+}
+function renderLinkPreview(s){
+  var checks = docChecklist(s);
+  $("slipDoc").innerHTML =
+    '<div class="phoneframe"><h3>' + esc(S().marinaName) + "</h3>" +
+    '<div class="who">Renewal link preview — what ' + esc(s.holder) + " sees on their own no-login page.<br><b>Demo simulation:</b> acting here changes the demo record, the way the boater's own actions would.</div>" +
+    '<p style="font-size:14px; margin-bottom:8px;">Hi ' + esc(s.holder.split(" ")[0]) + " — your slip <b>" + esc(s.code) + "</b> for <b>" + esc(s.boat) + "</b>, " + esc(S().seasonName) + " (" + fmtDate(S().seasonStart) + " – " + fmtDate(S().seasonEnd) + ").</p>" +
+    '<p style="font-size:14px; margin-bottom:10px;">Season fee ' + money(seasonFee(s)) + " + deposit " + money(depositDue(s)) + " = <b>" + money(totalDue(s)) + "</b> · paid " + money(s.paid) + " · balance <b>" + money(balance(s)) + "</b></p>" +
+    '<ul class="checklist">' + checks.map(function(c){ return '<li><span class="' + (c.ok ? "pass" : "fail") + '">' + (c.ok ? "✓" : "✗") + "</span> " + esc(c.label) + "</li>"; }).join("") + "</ul>" +
+    '<div class="field"><label class="flabel" for="lpInsCarrier">Insurance carrier</label><div class="fieldrow"><div class="grow"><input type="text" id="lpInsCarrier" value="' + esc(s.ins ? s.ins.carrier : "") + '"></div><button class="micbtn" data-mic="lpInsCarrier" aria-label="Speak the insurance carrier">🎤</button></div></div>' +
+    '<div class="field"><label class="flabel" for="lpInsLimit">Liability limit ($)</label><div class="fieldrow"><div class="grow"><input type="number" id="lpInsLimit" value="' + (s.ins ? s.ins.limit : "") + '"></div><button class="micbtn" data-mic="lpInsLimit" aria-label="Speak the liability limit">🎤</button></div></div>' +
+    '<div class="field"><label class="flabel" for="lpInsExp">Certificate expires</label><input type="date" id="lpInsExp" value="' + (s.ins && s.ins.exp ? s.ins.exp : "") + '"></div>' +
+    '<div class="field"><label class="flabel" for="lpRegNum">Registration number</label><div class="fieldrow"><div class="grow"><input type="text" id="lpRegNum" value="' + esc(s.reg ? s.reg.num : "") + '"></div><button class="micbtn" data-mic="lpRegNum" aria-label="Speak the registration number">🎤</button></div></div>' +
+    '<div class="field"><label class="flabel" for="lpRegExp">Registration expires</label><input type="date" id="lpRegExp" value="' + (s.reg && s.reg.exp ? s.reg.exp : "") + '"></div>' +
+    '<button class="btn secondary" id="lpSaveDocs" style="width:100%; margin-bottom:10px;">Save my documents</button>' +
+    '<label class="gatecheck"><input type="checkbox" id="lpAgree"><span>I, ' + esc(s.holder) + ", renew slip " + esc(s.code) + " for the " + esc(S().seasonName) + " on these terms.</span></label>" +
+    '<button class="btn" id="lpSign" style="width:100%;" disabled>Sign my renewal</button>' +
+    '<p style="font-size:12px; color:var(--mut); margin-top:10px; text-align:center;">In the live product this page is the boater\'s own — no account, no password. SlipDesk never signs for the boater.</p></div>';
+  $("lpAgree").addEventListener("change", function(){ $("lpSign").disabled = !this.checked; });
+  $("lpSaveDocs").addEventListener("click", function(){
+    var carrier = $("lpInsCarrier").value.trim();
+    if(carrier){ s.ins = { carrier:carrier, policy:(s.ins ? s.ins.policy : ""), limit:asNonNeg(Number($("lpInsLimit").value), 0), exp:asDateOrNull($("lpInsExp").value) }; }
+    var rn = $("lpRegNum").value.trim();
+    if(rn){ s.reg = { state:(s.reg ? s.reg.state : "OK"), num:rn, exp:asDateOrNull($("lpRegExp").value) }; }
+    save(); renderAll(); openSlipDetail(s.id); renderLinkPreview(s);
+    toast("Documents saved for " + s.code + " — the checklist re-judged itself.");
+  });
+  $("lpSign").addEventListener("click", function(){
+    s.signedDate = todayISO(); if(s.stage === "invited" || s.stage === "not-started") s.stage = "signed";
+    save(); renderAll(); openSlipDetail(s.id); showView("slips");
+    toast(s.holder + " signed slip " + s.code + (derivedStatus(s).key === "renewed" ? " — RENEWED." : " — now Signed; see the checklist for what's left."));
+  });
+}
+
+/* ---------- slip form (with on-device draft persistence) ---------- */
+var DRAFT_KEY = LS_KEY + "_formdraft";
+var SLIP_FIELDS = ["sCode","sDock","sMaxLen","sRate","sHolder","sEmail","sBoat","sBoatLen","sStage","sPaid","sInsCarrier","sInsPolicy","sInsLimit","sInsExp","sRegState","sRegNum","sRegExp","sDeposit","sNotes","sId"];
+function slipFormDraft(){
+  var d = {}; SLIP_FIELDS.forEach(function(f){ var el = $(f); if(el) d[f] = el.value; });
+  try{ localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); }catch(e){}
+}
+function restoreSlipDraft(){
+  var raw = null; try{ raw = localStorage.getItem(DRAFT_KEY); }catch(e){}
+  if(!raw) return false;
+  try{
+    var d = JSON.parse(raw); if(!isPlainObject(d)) return false;
+    var any = false;
+    SLIP_FIELDS.forEach(function(f){ if(typeof d[f] === "string" && $(f)){ $(f).value = d[f]; if(d[f]) any = true; } });
+    if(any){ $("slipFormTitle").textContent = d.sId ? "Edit slip (draft restored)" : "Add a slip (draft restored)"; syncSlipFormMode(); }
+    return any;
+  }catch(e){ return false; }
+}
+function clearSlipDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+function syncSlipFormMode(){ $("sDeleteBtn").hidden = !$("sId").value; }
+function fillSlipForm(s){
+  $("sId").value = s.id; $("sCode").value = s.code; $("sDock").value = s.dock; $("sMaxLen").value = s.maxLen;
+  $("sRate").value = s.rate; $("sHolder").value = s.holder; $("sEmail").value = s.email; $("sBoat").value = s.boat;
+  $("sBoatLen").value = s.boatLen; $("sStage").value = s.stage; $("sPaid").value = s.paid;
+  $("sInsCarrier").value = s.ins ? s.ins.carrier : ""; $("sInsPolicy").value = s.ins ? s.ins.policy : "";
+  $("sInsLimit").value = s.ins ? s.ins.limit : ""; $("sInsExp").value = s.ins && s.ins.exp ? s.ins.exp : "";
+  $("sRegState").value = s.reg ? s.reg.state : ""; $("sRegNum").value = s.reg ? s.reg.num : "";
+  $("sRegExp").value = s.reg && s.reg.exp ? s.reg.exp : "";
+  $("sDeposit").value = s.depositPaid ? "1" : "0"; $("sNotes").value = s.notes;
+  $("slipFormTitle").textContent = "Edit slip " + s.code;
+  syncSlipFormMode(); slipFormDraft();
+}
+function clearSlipForm(){
+  SLIP_FIELDS.forEach(function(f){ var el = $(f); if(el) el.value = ""; });
+  $("sDock").value = "A"; $("sStage").value = "not-started"; $("sDeposit").value = "0";
+  $("slipFormTitle").textContent = "Add a slip"; syncSlipFormMode(); clearSlipDraft();
+  $("sErr").style.display = "none"; $("sOk").style.display = "none";
+}
+var lastSlipSaveKey = "", lastSlipSaveAt = 0;
+function saveSlipFromForm(){
+  /* submit guard: an identical repeat submission inside 1.5s is a double-tap and is ignored;
+     a CHANGED form always saves — a fast correction is never swallowed. */
+  var keyNow = SLIP_FIELDS.map(function(f){ var el = $(f); return el ? el.value : ""; }).join("|");
+  var nowMs = Date.now();
+  if(keyNow === lastSlipSaveKey && nowMs - lastSlipSaveAt < 1500) return;
+  lastSlipSaveKey = keyNow; lastSlipSaveAt = nowMs;
+  var err = $("sErr"), okm = $("sOk"); err.style.display = "none"; okm.style.display = "none";
+  function fail(m){ err.textContent = m; err.style.display = "block"; window.scrollTo({top:0, behavior:"smooth"}); }
+  var code = $("sCode").value.trim();
+  if(!code) return fail("Slip code is required (e.g. B-07).");
+  var idVal = $("sId").value ? Number($("sId").value) : null;
+  var dupe = state.slips.some(function(s){ return s.code.toLowerCase() === code.toLowerCase() && s.id !== idVal; });
+  if(dupe) return fail("Slip code " + code + " is already in use — codes must be unique.");
+  var email = $("sEmail").value.trim();
+  if(email && email.indexOf("@") < 0) return fail("That email doesn't look right — it needs an @.");
+  var rate = Number($("sRate").value); if(!(rate >= 0)) return fail("Monthly rate must be 0 or more.");
+  var maxLen = Number($("sMaxLen").value); if(!(maxLen > 0)) return fail("Slip length must be more than 0.");
+  var insCarrier = $("sInsCarrier").value.trim();
+  var ins = insCarrier ? { carrier:insCarrier, policy:$("sInsPolicy").value.trim(), limit:asNonNeg(Number($("sInsLimit").value), 0), exp:asDateOrNull($("sInsExp").value) } : null;
+  var regState = $("sRegState").value.trim();
+  var reg = regState ? { state:regState, num:$("sRegNum").value.trim(), exp:asDateOrNull($("sRegExp").value) } : null;
+  var rec = { code:code, dock:$("sDock").value, maxLen:maxLen, holder:$("sHolder").value.trim(), email:email, boat:$("sBoat").value.trim(), boatLen:asNonNeg(Number($("sBoatLen").value), 0), rate:rate, stage:$("sStage").value, paid:asNonNeg(Number($("sPaid").value), 0), ins:ins, reg:reg, depositPaid:$("sDeposit").value === "1", notes:$("sNotes").value };
+  if(idVal !== null){
+    var s = slipById(idVal); if(!s) return fail("That slip no longer exists.");
+    Object.keys(rec).forEach(function(k){ s[k] = rec[k]; });
+    if(s.stage === "signed" && !s.signedDate) s.signedDate = todayISO();
+    save(); clearSlipDraft(); renderAll();
+    okm.textContent = "Saved — slip " + s.code + " updated everywhere it appears."; okm.style.display = "block";
+  } else {
+    var ns = { id:state.meta.nextSlipId, signedDate:rec.stage === "signed" ? todayISO() : null, sentDate:rec.stage === "invited" ? todayISO() : null, chase:[] };
+    Object.keys(rec).forEach(function(k){ ns[k] = rec[k]; });
+    state.slips.push(ns); state.meta.nextSlipId++;
+    $("sId").value = ns.id; syncSlipFormMode();
+    save(); clearSlipDraft(); renderAll();
+    $("slipFormTitle").textContent = "Edit slip " + ns.code;
+    okm.textContent = "Saved — slip " + ns.code + " added and counted on the dashboard."; okm.style.display = "block";
+  }
+}
+
+/* ---------- settings ---------- */
+var settingsBound = false;
+function fillSettingsForm(){
+  if(settingsBound && document.activeElement && $("view-settings").contains(document.activeElement)) return;
+  $("setMarina").value = S().marinaName; $("setSeasonName").value = S().seasonName;
+  $("setStart").value = S().seasonStart; $("setEnd").value = S().seasonEnd;
+  $("setMonths").value = S().seasonMonths; $("setDepositMonths").value = S().depositMonths;
+  $("setLiability").value = S().requiredLiability; $("setOfferDays").value = S().offerWindowDays;
+  $("setDue").value = S().contractDue;
+}
+function saveSettingsFromForm(){
+  var err = $("setErr"), okm = $("setOk"); err.style.display = "none"; okm.style.display = "none";
+  var start = $("setStart").value, end = $("setEnd").value, due = $("setDue").value;
+  if(!isValidDateString(start) || !isValidDateString(end) || !isValidDateString(due)){ err.textContent = "Season dates must all be real dates."; err.style.display = "block"; return; }
+  if(end <= start){ err.textContent = "The season must end after it starts."; err.style.display = "block"; return; }
+  state.settings = sanitizeSettings({ marinaName:$("setMarina").value.trim(), seasonName:$("setSeasonName").value.trim(), seasonStart:start, seasonEnd:end, seasonMonths:Number($("setMonths").value), depositMonths:Number($("setDepositMonths").value), requiredLiability:Number($("setLiability").value), offerWindowDays:Number($("setOfferDays").value), contractDue:due });
+  save(); renderAll();
+  okm.textContent = "Settings saved — every certificate check and fee in the app now uses these."; okm.style.display = "block";
+}
+
+/* ---------- export / backup / import ---------- */
+function csvCell(v){ var t = String(v === null || v === undefined ? "" : v); return /[",\n]/.test(t) ? '"' + t.replace(/"/g,'""') + '"' : t; }
+function buildInvoiceCsv(){
+  var head = ["Slip","Holder","Email","Boat","Monthly Rate","Season Fee","Deposit","Total Due","Paid","Balance","Status"];
+  var lines = [head.join(",")];
+  state.slips.filter(isActive).forEach(function(s){
+    lines.push([s.code, s.holder, s.email, s.boat, s.rate, seasonFee(s), depositDue(s), totalDue(s), s.paid, balance(s), derivedStatus(s).label].map(csvCell).join(","));
+  });
+  return lines.join("\n");
+}
+function download(name, text, type){
+  var blob = new Blob([text], { type:type || "text/plain" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+}
+
+/* ---------- voice entry (§9a: one press to listening) ---------- */
+function dictate(targetId){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast("Voice isn't available on this device/browser — typing works as always"); return; }
+  var rec;
+  try{ rec = new SR(); }catch(e){ toast("Voice isn't available on this device/browser — typing works as always"); return; }
+  rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 1;
+  rec.onresult = function(ev){ var t = ev.results[0][0].transcript || ""; var el = $(targetId); if(el){ el.value = t; el.dispatchEvent(new Event("input", {bubbles:true})); el.dispatchEvent(new Event("change", {bubbles:true})); } };
+  rec.onerror = function(){ toast("Didn't catch that — try again or type it"); };
+  rec.start();
+}
+
+/* ---------- wiring ---------- */
+function bindStatic(){
+  var navBtns = document.querySelectorAll("#mainNav button");
+  for(var i=0;i<navBtns.length;i++){ navBtns[i].addEventListener("click", function(){ showView(this.getAttribute("data-view")); }); }
+  $("dashChaseBtn").addEventListener("click", function(){ showView("chase"); });
+  $("dashSlipsBtn").addEventListener("click", function(){ showView("slips"); });
+  var chips = document.querySelectorAll("#slipFilters .chip");
+  for(var c=0;c<chips.length;c++){ chips[c].addEventListener("click", function(){
+    for(var k=0;k<chips.length;k++) chips[k].classList.remove("active");
+    this.classList.add("active"); slipFilter = this.getAttribute("data-filter"); renderSlips();
+  }); }
+  $("slipSearch").addEventListener("input", function(){ slipQuery = this.value; renderSlips(); });
+  $("wAddBtn").addEventListener("click", function(){
+    var err = $("wErr"); err.style.display = "none";
+    var name = $("wName").value.trim(), email = $("wEmail").value.trim(), len = Number($("wLen").value);
+    if(!name){ err.textContent = "The boater's name is required."; err.style.display = "block"; return; }
+    if(email && email.indexOf("@") < 0){ err.textContent = "That email doesn't look right — it needs an @."; err.style.display = "block"; return; }
+    if(!(len > 0)){ err.textContent = "Boat length must be more than 0."; err.style.display = "block"; return; }
+    state.waitlist.push({ id:state.meta.nextWaitId, name:name, email:email, boat:$("wBoat").value.trim(), boatLen:len, status:"waiting", offeredSlipId:null, offerDate:null });
+    state.meta.nextWaitId++;
+    $("wName").value = ""; $("wEmail").value = ""; $("wBoat").value = ""; $("wLen").value = "";
+    save(); renderAll(); showView("waitlist");
+    toast(name + " is on the waitlist.");
+  });
+  SLIP_FIELDS.forEach(function(f){ var el = $(f); if(el) el.addEventListener("input", slipFormDraft); });
+  $("sSaveBtn").addEventListener("click", saveSlipFromForm);
+  $("sNewBtn").addEventListener("click", clearSlipForm);
+  $("sDeleteBtn").addEventListener("click", function(){
+    var id = Number($("sId").value); var s = slipById(id); if(!s) return;
+    if(!confirm("Delete slip " + s.code + " and its whole record? This cannot be undone.")) return;
+    state.slips = state.slips.filter(function(x){ return x.id !== id; });
+    if(detailSlipId === id){ detailSlipId = null; $("slipDetail").innerHTML = ""; }
+    save(); clearSlipForm(); renderAll();
+    toast("Slip " + s.code + " deleted.");
+  });
+  $("setSaveBtn").addEventListener("click", saveSettingsFromForm); settingsBound = true;
+  $("csvBuildBtn").addEventListener("click", function(){ $("csvOut").value = buildInvoiceCsv(); toast("Invoice list built from the current records."); });
+  $("csvDownloadBtn").addEventListener("click", function(){ if(!$("csvOut").value) $("csvOut").value = buildInvoiceCsv(); download("slipdesk-invoice-list.csv", $("csvOut").value, "text/csv"); });
+  $("backupBtn").addEventListener("click", function(){ download("slipdesk-backup.json", JSON.stringify(state, null, 2), "application/json"); });
+  $("importFile").addEventListener("change", function(){
+    var err = $("impErr"), okm = $("impOk"); err.style.display = "none"; okm.style.display = "none";
+    var f = this.files && this.files[0]; if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var healed = null;
+      try{ healed = sanitizeState(JSON.parse(String(reader.result))); }catch(e){}
+      if(!healed){ err.textContent = "That file isn't a SlipDesk backup — nothing was changed."; err.style.display = "block"; return; }
+      healed.meta.termsAccepted = true;
+      state = healed; save(); clearSlipDraft(); renderAll();
+      okm.textContent = "Backup restored — " + state.slips.length + " slips and " + state.waitlist.length + " waitlist entries are back."; okm.style.display = "block";
+    };
+    reader.onerror = function(){ err.textContent = "That file couldn't be read — nothing was changed."; err.style.display = "block"; };
+    reader.readAsText(f);
+    this.value = "";
+  });
+  $("resetDataBtn").addEventListener("click", function(){
+    if(!confirm("Reset to the fictional demo marina? Your current records will be replaced.")) return;
+    var keepTerms = state.meta.termsAccepted;
+    state = seedData(); state.meta.termsAccepted = keepTerms;
+    detailSlipId = null; $("slipDetail").innerHTML = "";
+    save(); clearSlipDraft(); clearSlipForm(); renderAll();
+    toast("Demo data reset — Grand Lake Marina & Boatyard is back.");
+  });
+  $("clearDataBtn").addEventListener("click", function(){
+    if(!confirm("Clear all slips and the whole waitlist? Settings stay. This cannot be undone.")) return;
+    state.slips = []; state.waitlist = [];
+    detailSlipId = null; $("slipDetail").innerHTML = "";
+    save(); renderAll();
+    toast("Cleared — the marina is empty. Add slips from Add / edit slip.");
+  });
+  $("pilotTerms").addEventListener("change", function(){ $("pilotSubmit").disabled = !this.checked; });
+  $("pilotSubmit").addEventListener("click", function(){
+    var subject = "SlipDesk pilot request — " + ($("pilotMarina").value.trim() || "Spring Renewal Run");
+    var body = "Hi SlipDesk team,\n\nI'd like the $299 Spring Renewal Run pilot.\n\nName: " + $("pilotName").value.trim() + "\nMarina: " + $("pilotMarina").value.trim() + "\nEmail: " + $("pilotEmail").value.trim() + "\nSlips: " + ($("pilotSlips").value || "not sure yet") + "\n\nI understand SlipDesk prepares the renewal packet from the records I provide, the marina reviews and sends every contract, boaters sign their own renewals, and nothing is billed until the pilot is confirmed by email.";
+    window.location.href = "mailto:whitewolfbackoffice@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  });
+  /* mic buttons are bound by delegation so dynamically rendered fields (chase draft, boater-link preview) are covered too */
+  document.addEventListener("click", function(ev){
+    var b = ev.target && ev.target.closest ? ev.target.closest("[data-mic]") : null;
+    if(b) dictate(b.getAttribute("data-mic"));
+  });
+  $("termsCheck").addEventListener("change", function(){ $("termsAgree").disabled = !this.checked; });
+  $("termsAgree").addEventListener("click", function(){
+    state.meta.termsAccepted = true; save();
+    $("gate").hidden = true; $("appShell").hidden = false;
+    renderAll(); restoreSlipDraft();
+    toast("Welcome to SlipDesk — the 2027 renewal season is mid-flight.");
+  });
+}
+
+/* ---------- boot ---------- */
+state = load();
+bindStatic();
+if(state.meta.termsAccepted){ $("appShell").hidden = false; renderAll(); restoreSlipDraft(); }
+else { $("gate").hidden = false; }
+</script>
+</body>
+</html>
