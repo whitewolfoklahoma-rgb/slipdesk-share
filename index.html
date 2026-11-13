@@ -119,10 +119,51 @@
     #printArea{display:block; font-size:12px;}
     #printArea .docbox{border:none; max-width:none;}
   }
+  /* ===== SlipDesk v0.1.1-demo: modern app-look redesign (BirdTally pattern, navy/green palette) ===== */
+  :root{--bar-h:64px;--shadow:0 2px 6px rgba(16,52,74,.07),0 10px 26px rgba(16,52,74,.09);}
+  body{padding-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom) + 16px);}
+  header{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,var(--navy),var(--navy2) 62%,#1f6f8f);box-shadow:0 2px 12px rgba(16,52,74,.35);padding:12px 28px;}
+  header .mark{flex:0 0 auto;width:50px;height:50px;border-radius:15px;background:linear-gradient(145deg,#3ecf82,#0f7a4d);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 3px 8px rgba(0,0,0,.25);}
+  header .logo{font-size:23px;line-height:1.1;}
+  /* Bottom tab bar. Nav buttons are static markup, so each carries real
+     icon/label spans; visible labels are shortened ("Chase", "Wait",
+     "Add", "Setup") so 9 tabs fit at 390px, and each button's
+     aria-label keeps the full original name. The bar's background is
+     non-interactive chrome: like the toast, it must never swallow a tap
+     meant for content beneath it, so only the tab buttons themselves
+     take pointer events (batch-9 PumpLedger lesson). */
+  nav{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:60;background:rgba(255,255,255,.97);border-top:1px solid var(--line);border-bottom:none;box-shadow:0 -3px 16px rgba(16,52,74,.14);padding:6px 8px calc(6px + env(safe-area-inset-bottom));flex-wrap:nowrap;justify-content:center;pointer-events:none;}
+  nav button{flex:1 1 0;min-width:0;max-width:110px;min-height:56px;background:none;border-bottom:none;color:var(--mut);border-radius:14px;padding:4px 1px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-weight:700;pointer-events:auto;}
+  nav button .ic{font-size:18px;line-height:1.15;padding:3px 10px;border-radius:999px;transition:background .15s;pointer-events:none;}
+  nav button .lb{font-size:10px;letter-spacing:.1px;white-space:nowrap;pointer-events:none;}
+  nav button.active{color:var(--navy);border-bottom:none;}
+  nav button.active .ic{background:var(--accent);box-shadow:0 2px 6px rgba(15,122,77,.45);}
+  section.panel.active{animation:sdTabIn .28s ease both;}
+  @keyframes sdTabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card,.statstrip,.formcard,.docbox,details,.riskbanner,.verify,.tblwrap{border-radius:16px;box-shadow:var(--shadow);}
+  .btn{border-radius:999px;min-height:48px;}
+  .btn.small{min-height:44px;}
+  input[type=text], input[type=number], input[type=email], input[type=date], select, textarea{border-radius:12px;}
+  .micbtn{border-radius:50%;}
+  .err,.okmsg{border-radius:12px;}
+  #toast{bottom:calc(var(--bar-h) + env(safe-area-inset-bottom) + 14px);border-radius:999px;z-index:70;pointer-events:none;}
+  /* Terms gate restyled as a welcome screen: big icon tile, app name,
+     welcome line, one big Agree pill (the .btn rule above). Gate markup
+     and behaviour are unchanged — no re-prompt for existing users. */
+  #gate{border-radius:22px;box-shadow:var(--shadow);padding:30px 30px 26px;}
+  .gate-mark{width:64px;height:64px;margin:0 auto 12px;border-radius:18px;background:linear-gradient(145deg,#3ecf82,#0f7a4d);display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 3px 8px rgba(0,0,0,.18);}
+  .gate-welcome{text-align:center;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:14px;}
+  #gate h2{text-align:center;}
+  /* scroll-into-view must never park a control under the fixed bar or the
+     sticky header (batch-8 lesson: real taps and keyboard focus both
+     land clear) */
+  button,input,select,textarea,a.btn,summary{scroll-margin-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom) + 32px);scroll-margin-top:96px;}
+  @media print{body{padding-bottom:0;}}
 </style>
 </head>
 <body>
 <header>
+  <div class="mark" aria-hidden="true">⚓</div>
   <div>
     <div class="logo">Slip<span>Desk</span></div>
     <div class="sub">The annual slip-renewal desk for small marinas &amp; boatyards</div>
@@ -136,6 +177,8 @@
 </div>
 
 <div id="gate" hidden>
+  <div class="gate-mark" aria-hidden="true">⚓</div>
+  <p class="gate-welcome">Welcome to SlipDesk — the whole renewal season on one screen.</p>
   <h2>Before you start — what SlipDesk is</h2>
   <p><b>SlipDesk prepares renewal paperwork. It does not sign, file, or submit anything.</b> SlipDesk assembles each slip's renewal contract from the marina's own records, tracks insurance certificates and boat registrations, chases the boaters who haven't answered, works the waitlist, and produces the invoice list for your bookkeeping.</p>
   <p>The marina reviews and sends every contract. Each boater reviews and signs their own renewal — SlipDesk never signs for a boater, and a signature recorded in this demo is a simulation of the boater's own action on their no-login link.</p>
@@ -147,15 +190,15 @@
 
 <div id="appShell" hidden>
 <nav id="mainNav">
-  <button data-view="dashboard" class="active">Season</button>
-  <button data-view="slips">Slips</button>
-  <button data-view="chase">Chase queue</button>
-  <button data-view="waitlist">Waitlist</button>
-  <button data-view="addslip">Add / edit slip</button>
-  <button data-view="export">Export</button>
-  <button data-view="settings">Settings</button>
-  <button data-view="pricing">Pricing &amp; pilot</button>
-  <button data-view="help">Help</button>
+  <button data-view="dashboard" class="active" aria-label="Season"><span class="ic" aria-hidden="true">🏠</span><span class="lb">Season</span></button>
+  <button data-view="slips" aria-label="Slips"><span class="ic" aria-hidden="true">⚓</span><span class="lb">Slips</span></button>
+  <button data-view="chase" aria-label="Chase queue"><span class="ic" aria-hidden="true">🔔</span><span class="lb">Chase</span></button>
+  <button data-view="waitlist" aria-label="Waitlist"><span class="ic" aria-hidden="true">📋</span><span class="lb">Wait</span></button>
+  <button data-view="addslip" aria-label="Add / edit slip"><span class="ic" aria-hidden="true">➕</span><span class="lb">Add</span></button>
+  <button data-view="export" aria-label="Export"><span class="ic" aria-hidden="true">📤</span><span class="lb">Export</span></button>
+  <button data-view="settings" aria-label="Settings"><span class="ic" aria-hidden="true">⚙️</span><span class="lb">Setup</span></button>
+  <button data-view="pricing" aria-label="Pricing &amp; pilot"><span class="ic" aria-hidden="true">💲</span><span class="lb">Pricing</span></button>
+  <button data-view="help" aria-label="Help"><span class="ic" aria-hidden="true">❓</span><span class="lb">Help</span></button>
 </nav>
 <main>
 
@@ -413,7 +456,7 @@
     <div class="formcard">
       <h3>Still stuck?</h3>
       <p style="font-size:13.5px; margin-bottom:12px;">Email us what you were trying to do and what happened. Support is included — no account, no fee.</p>
-      <a class="btn" id="emailUsBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=SlipDesk%20help%20%E2%80%94%20v0.1.0-demo&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A">Email us</a>
+      <a class="btn" id="emailUsBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=SlipDesk%20help%20%E2%80%94%20v0.1.1-demo&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A">Email us</a>
     </div>
   </section>
 </main>
@@ -421,7 +464,7 @@
 <div id="printArea"></div>
 <div id="toast"></div>
 <div style="max-width:1180px; margin:0 auto; padding:0 20px 26px; color:var(--mut); font-size:12.5px;">
-  SlipDesk v0.1.0-demo · Seller: White Wolf Apps · Demo with fictional data — “Grand Lake Marina &amp; Boatyard” is a fictional marina. Questions: use Help → Email us.
+  SlipDesk v0.1.1-demo · Seller: White Wolf Apps · Demo with fictional data — “Grand Lake Marina &amp; Boatyard” is a fictional marina. Questions: use Help → Email us.
 </div>
 
 <script>
